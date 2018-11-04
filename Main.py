@@ -8,15 +8,14 @@ from snappy import jpy
 from snappy import HashMap
 
 
-# input directory with all products
+# input directory
 partial_input_dir = '/home/famiglia/Scrivania/Tesi_Magistrale/Prova_Tesi/input_dir/r10m/'
 # output folder
 output_dir = '/home/famiglia/Scrivania/Tesi_Magistrale/Prova_Tesi/output_dir'
 
-arr_band = ['B2', 'B3', 'B4']
+band_list = ['B2', 'B3', 'B4']
 parameters = HashMap()
 subset_parameters = HashMap()
-parameters.put('combine', 'AND')
 # parameters.put('combine', 'OR')
 parameters.put('resampling', 'Nearest')
 parameters.put('crs', 'EPSG:4326')
@@ -29,9 +28,8 @@ parameters.put('pixelSizeY', 0.01)
 Variable = jpy.get_type('org.esa.snap.core.gpf.common.MosaicOp$Variable')  # Ho richiamato il costruttore Variable
 # vars = jpy.array('org.esa.snap.core.gpf.common.MosaicOp$Variable', len(arr_band))
 vars = jpy.array('org.esa.snap.core.gpf.common.MosaicOp$Variable', 1)
-# Mosaic = GPF.createProduct('Subset', parameters, products)
 
-for band in arr_band:
+for band in band_list:
     # creating file with input images
     products = []
     input_dir = partial_input_dir + band
@@ -46,9 +44,9 @@ for band in arr_band:
     out_file_name = 'out_file_' + band
     ProductIO.writeProduct(Mosaic, os.path.join(output_dir, out_file_name), 'BEAM-DIMAP')
     # parameters.clear()
-    subset_parameters.put('Region', 'Rectangle(103, 37, 20, 70)')
-    # subset_parameters.put('geoRegion', 'POLYGON((42.3575 11.8050, '
-                                       # '42.3475 13.4450, 41.8875 13.6150, 42.0775 12.3850, 42.3575 11.8050))')
+    # subset_parameters.put('Region', 'Rectangle(103, 37, 20, 70)')
+    subset_parameters.put('geoRegion', 'POLYGON((11.8050 42.3575, '
+                                       '13.4450 42.3475, 13.6150 41.8875,12.3850 42.0775, 11.8050 42.3575))')
     Subset = GPF.createProduct('Subset', subset_parameters, Mosaic)
-    out_file_name = 'out_file_' + band + '_subset'
+    out_file_name += '_subset'
     ProductIO.writeProduct(Subset, os.path.join(output_dir, out_file_name), 'BEAM-DIMAP')
