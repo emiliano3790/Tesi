@@ -35,19 +35,20 @@ for band in arr_band:
     # creating file with input images
     products = []
     input_dir = partial_input_dir + band
-    print input_dir
+    # print input_dir
     for product in os.listdir(input_dir):  # os.listdir restituisce una lista con tutti gli elementi contenuti nella cartella specificata
-        products.append(ProductIO.readProduct(os.path.join(input_dir, product)))
-        vars[0] = Variable(band, 'band_1')
-        parameters.put('variables', vars)
-        # creating mosaic
-        Mosaic = GPF.createProduct('Mosaic', parameters, products)
-        # Writing output
-        out_file_name = 'out_file' + band
-        ProductIO.writeProduct(Mosaic, os.path.join(output_dir, out_file_name), 'BEAM-DIMAP')
-        #parameters.clear()
-        #parameters.put('Region', 'Rectangle(6, 9, 20, 20)')
-        subset_parameters.put('geoRegion', 'POLYGON((42.3275 13.575, 42.3175 13.355, 41.9575 13.225, 42.1375 12.525, 42.3275 13.575))')
-        Subset = GPF.createProduct('Subset', subset_parameters, Mosaic)
-        out_file_name = 'out_file' + band + 'subset'
-        ProductIO.writeProduct(Subset, os.path.join(output_dir, out_file_name), 'BEAM-DIMAP')
+            products.append(ProductIO.readProduct(os.path.join(input_dir, product)))
+    vars[0] = Variable(band, 'band_1')
+    parameters.put('variables', vars)
+    # creating mosaic
+    Mosaic = GPF.createProduct('Mosaic', parameters, products)
+    # Writing output
+    out_file_name = 'out_file_' + band
+    ProductIO.writeProduct(Mosaic, os.path.join(output_dir, out_file_name), 'BEAM-DIMAP')
+    # parameters.clear()
+    subset_parameters.put('Region', 'Rectangle(103, 37, 20, 70)')
+    # subset_parameters.put('geoRegion', 'POLYGON((42.3575 11.8050, '
+                                       # '42.3475 13.4450, 41.8875 13.6150, 42.0775 12.3850, 42.3575 11.8050))')
+    Subset = GPF.createProduct('Subset', subset_parameters, Mosaic)
+    out_file_name = 'out_file_' + band + '_subset'
+    ProductIO.writeProduct(Subset, os.path.join(output_dir, out_file_name), 'BEAM-DIMAP')
