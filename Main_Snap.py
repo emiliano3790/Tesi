@@ -57,5 +57,5 @@ for band in band_list:
     subset_parameters.put('geoRegion', 'POLYGON((11.8050 42.3575, '
                                        '13.4450 42.3475, 13.6150 41.8875,12.3850 42.0775, 11.8050 42.3575))')
     Subset = GPF.createProduct('Subset', subset_parameters, Mosaic)
-    out_file_name += 'out_file_subset_' + band
+    out_file_name += 'out_file_subset_ ' + band
     ProductIO.writeProduct(Subset, os.path.join(output_dir, out_file_name), 'BEAM-DIMAP')
