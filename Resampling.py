@@ -64,16 +64,17 @@ def resampling():
                     dst_transform=newaff,
                     resampling=Resampling.nearest)
                 print resampled_arr.shape[0], resampled_arr.shape[1]
-                resampled_file_name = resampled_image_path + 'resampled_image_' + 'B' + str(i) +'_R10m.jp2'
+                resampled_file_name = resampled_image_path + 'resampled_image_' + 'B' + str(i) +'_R10m.tif'
                 print resampled_file_name
                 # print resampled_arr
                 resampled_image = rasterio.open(resampled_file_name, 'w',
                                                 height=resampled_arr.shape[0], width=resampled_arr.shape[1],
-                                                driver='JP2OpenJPEG', count=1, dtype=resampled_arr.dtype,
+                                                driver='GTiff', count=1, dtype=resampled_arr.dtype,
                                                 crs=dataset.crs, transform=newaff)
                 print resampled_image.block_shapes
                 print 'Sto per scrivere'
-                resampled_image.write(resampled_arr, 1)
+                y = resampled_image.write(resampled_arr, 1)
+                print y
                 # resampled_image.close()
                 print 'Ho scritto'
                 i += 1
