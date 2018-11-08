@@ -4,10 +4,12 @@ import rasterio
 import numpy as np
 from rasterio.warp import reproject, Resampling
 from affine import Affine
+from shutil import copyfile
 
 input_zip = '/home/famiglia/Scrivania/Tesi_Magistrale/Prova_Tesi/Prova_Rasterio/input_zip/'
 jp2_images = '/home/famiglia/Scrivania/Tesi_Magistrale/Prova_Tesi/Prova_Rasterio/jp2_images/'
 resampled_images = '/home/famiglia/Scrivania/Tesi_Magistrale/Prova_Tesi/Prova_Rasterio/resampled_images/'
+concatenated_bands = '/home/famiglia/Scrivania/Tesi_Magistrale/Prova_Tesi/Prova_Rasterio/concatenated_bands/'
 ex_input_10m = '/home/famiglia/Scrivania/T33TTG_20181013T100021_B02_10m.jp2'
 
 
@@ -30,9 +32,12 @@ def resampling():
 
     jp2_files_list = []
     jp2_files_dir = ''
+    imgdata_path = ''
+    dir = ''
     for jp2_directory in os.listdir(jp2_images):
         granule_path = jp2_images + jp2_directory + '/GRANULE/'
         for dir in os.listdir(granule_path):
+            os.mkdir(resampled_images + dir)
             imgdata_path = granule_path + dir + '/IMG_DATA/'
             for resampling_directory in os.listdir(imgdata_path):
                 if resampling_directory in resizing_resolution:
@@ -50,7 +55,7 @@ def resampling():
                             # print src_arr
                             aff = dataset.transform
                             # print aff
-                            resampled_arr = np.zeros((arr_10m.shape[1], arr_10m.shape[2]), dtype=src_arr.dtype)  # Array di destinazione
+                            resampled_arr = np.empty((arr_10m.shape[1], arr_10m.shape[2]), dtype=src_arr.dtype)  # Array di destinazione
                             x = 10980/src_arr.shape[1]
                             # print src_arr.shape
                             # print x
@@ -68,8 +73,7 @@ def resampling():
                                  dst_crs=dataset.crs,
                                  dst_transform=newaff,
                                  resampling=Resampling.nearest)
-                            resampled_file_name = resampled_images + resampling_directory +\
-                                                  '/' 'resampled_image_' + str(band_name) +'_R10m.tif'
+                            resampled_file_name = resampled_images + dir + '/' + 'resampled_image_' + str(band_name) +'_10m.tif'
                             print resampled_file_name
                             resampled_image = rasterio.open(resampled_file_name, 'w',
                                                              height=resampled_arr.shape[0], width=resampled_arr.shape[1],
@@ -78,3 +82,19 @@ def resampling():
                             resampled_image.write(resampled_arr, 1)
                             resampled_image.close()
                             dataset.close()
+        # for images_10m in os.listdir(imgdata_path + 'R10m'):
+        #     source = imgdata_path + 'R10m' + '/' + images_10m
+        #     destination = resampled_images + dir + '/' + images_10m
+        #     new_dest = destination.replace('jp2', 'tif')
+        #     dataset_jp2 = rasterio.open(source, driver='JP2OpenJPEG')
+        #     arr_jp2 = dataset_jp2.read()
+        #     tif_arr = np.empty((arr_jp2.shape[1], arr_jp2.shape[2]), dtype=arr_jp2.dtype)
+        #     tif_image = rasterio.open(new_dest, 'w',
+        #                                     height=arr_jp2.shape[1], width=arr_jp2.shape[2],
+        #                                     driver='GTiff', count=1, dtype=arr_jp2.dtype,
+        #                                     crs=dataset.crs, transform=dataset.transform)
+        #     tif_image.write(arr_jp2, 1)
+        #     tif_image.close()
+        #     dataset_jp2.close()
+        #     print destination
+            # copyfile(source, destination)
