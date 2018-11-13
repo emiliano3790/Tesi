@@ -44,7 +44,7 @@ def resampling():
                 jp2_files_list.append(os.path.join(root, filename))
         for jp2_image in jp2_files_list:
             if '10m' in jp2_image:
-                # tl.convertJP2toTIF(jp2_image, resampled_images_specprod_dir)
+                tl.convertJP2toTIF(jp2_image, resampled_images_specprod_dir)
                 # Qua dovrei convertire l'immagine in tif
                 # copy(jp2_image, resampled_images_specprod_dir)
                 continue
