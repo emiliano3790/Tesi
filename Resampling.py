@@ -4,7 +4,6 @@ import rasterio
 import numpy as np
 from rasterio.warp import reproject, Resampling
 from affine import Affine
-from shutil import copy
 import Tool as tl
 
 
@@ -35,18 +34,14 @@ def resampling():
     band_name = ''
     for jp2_directory in os.listdir(jp2_images_dir):
         resampled_images_specprod_dir = resampled_images_dir + jp2_directory
-        # print resampled_images_specprod_dir
         os.mkdir(resampled_images_specprod_dir)
         jp2_files_list = []
         for root, dirnames, filenames in os.walk(jp2_images_dir + jp2_directory):
             for filename in filenames:
-                # print os.path.join(root, filename)
                 jp2_files_list.append(os.path.join(root, filename))
         for jp2_image in jp2_files_list:
             if '10m' in jp2_image:
                 tl.convertJP2toTIF(jp2_image, resampled_images_specprod_dir)
-                # Qua dovrei convertire l'immagine in tif
-                # copy(jp2_image, resampled_images_specprod_dir)
                 continue
             else:
                 for band_name in resizing_band_list:
@@ -57,7 +52,6 @@ def resampling():
             aff = dataset.transform
             resampled_arr = np.empty((arr_10m.shape[1], arr_10m.shape[2]),
                                      dtype=src_arr.dtype)  # Array di destinazione
-            # print src_arr.dtype
             x = arr_10m.shape[1] / src_arr.shape[1]  # Upsampling
             newaff = Affine(aff.a / x, aff.b, aff.c, aff.d, aff.e / x, aff.f)
             reproject(
@@ -72,7 +66,7 @@ def resampling():
                 resampling=Resampling.nearest)
             resampled_file_name = resampled_images_specprod_dir + '/' + 'resampled_image_' \
                                   + str(band_name) + '_10m.tif'
-            # print resampled_file_name
+            print resampled_file_name
             resampled_image = rasterio.open(resampled_file_name, 'w',
                                             height=resampled_arr.shape[0], width=resampled_arr.shape[1],
                                             count=1, dtype=resampled_arr.dtype, driver='GTiff',
