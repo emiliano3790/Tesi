@@ -16,7 +16,7 @@ def maskImage():
     readable_json = json.loads(geojson)
     print type(readable_json)
     print readable_json
-
+    k = 0  # Per il commit
     # polygon = []
     # for key, value in dict.items(readable_json):
     #     print key, value
