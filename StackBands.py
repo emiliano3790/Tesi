@@ -1,16 +1,12 @@
 import rasterio
 import os
 
-masked_images_dir = '/home/famiglia/Scrivania/Tesi_Magistrale/Prova_Tesi/Prova_Rasterio/5_masked_image/'
-stacked_bands_dir = '/home/famiglia/Scrivania/Tesi_Magistrale/Prova_Tesi/Prova_Rasterio/6_stacked_bands/'
 
-
-def stack_bands():
+def stack_bands(masked_images_dir, stacked_bands_dir):
     stack_file_name = stacked_bands_dir + 'stacked_image.tif'
     tif_file_path_list = []
     for masked_tif in os.listdir(masked_images_dir):
         tif_file_path_list.append(masked_images_dir + masked_tif)
-        print masked_images_dir + masked_tif
     masked = rasterio.open(tif_file_path_list[0])
     stack_meta = masked.meta.copy()
     masked.close()

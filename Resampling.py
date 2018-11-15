@@ -1,37 +1,19 @@
 import os
-import zipfile
 import rasterio
 import numpy as np
 from rasterio.warp import reproject, Resampling
 from affine import Affine
 import Tool as tl
 
-
-input_zip_dir = '/home/famiglia/Scrivania/Tesi_Magistrale/Prova_Tesi/Prova_Rasterio/1_input_zip/'
-jp2_images_dir = '/home/famiglia/Scrivania/Tesi_Magistrale/Prova_Tesi/Prova_Rasterio/2_jp2_images/'
-resampled_images_dir = '/home/famiglia/Scrivania/Tesi_Magistrale/Prova_Tesi/Prova_Rasterio/3_resampled_images/'
-ex_input_10m_dir = '/home/famiglia/Scrivania/T33TTG_20181013T100021_B02_10m.jp2'
-
-
-extract_band_list = ['B01_60m', 'B02_10m', 'B03_10m', 'B04_10m', 'B05_20m', 'B06_20m', 'B07_20m', 'B08_10m', 'B8A_20m',
-                     'B09_60m', 'B11_20m', 'B12_20m']
 resizing_band_list = ['B01', 'B09', 'B11', 'B8A', 'B05', 'B06', 'B07', 'B12']
 
 
-def resampling():
-    # con questo primo for estraggo le immagini jp2 di cui devo fare il resampling
-    for zip_file in os.listdir(input_zip_dir):
-        zip_ref = zipfile.ZipFile(os.path.join(input_zip_dir, zip_file), 'r')
-        for zip_item in zip_ref.namelist():
-            for index in extract_band_list:
-                temp = index + '.jp2'
-                if temp in zip_item:
-                    zip_ref.extract(zip_item, jp2_images_dir)
-        zip_ref.close()
-
-    dataset_10m = rasterio.open(ex_input_10m_dir)
-    arr_10m = dataset_10m.read()
+def resampling(jp2_images_dir, resampled_images_dir, zip_path_list):
+    tl.extract_zip(jp2_images_dir, zip_path_list)
     band_name = ''
+    height_10m = 0
+    width_10m = 0
+    bool_10m_param = False
     for jp2_directory in os.listdir(jp2_images_dir):
         resampled_images_specprod_dir = resampled_images_dir + jp2_directory
         os.mkdir(resampled_images_specprod_dir)
@@ -41,7 +23,15 @@ def resampling():
                 jp2_files_list.append(os.path.join(root, filename))
         for jp2_image in jp2_files_list:
             if '10m' in jp2_image:
+                if bool_10m_param is False:
+                    dataset_10m = rasterio.open(jp2_image)
+                    arr_10m = dataset_10m.read()
+                    height_10m = arr_10m.shape[1]
+                    width_10m = arr_10m.shape[2]
+                    bool_10m_param = True
+                    dataset_10m.close()
                 tl.convertJP2toTIF(jp2_image, resampled_images_specprod_dir)
+                print 'Copied file: ', jp2_image
                 continue
             else:
                 for band_name in resizing_band_list:
@@ -50,9 +40,9 @@ def resampling():
             dataset = rasterio.open(jp2_image, driver='JP2OpenJPEG')  # Immagine di cui devo fare il resampling
             src_arr = dataset.read()  # Array di cui devo fare il resampling
             aff = dataset.transform
-            resampled_arr = np.empty((arr_10m.shape[1], arr_10m.shape[2]),
+            resampled_arr = np.empty((height_10m, width_10m),
                                      dtype=src_arr.dtype)  # Array di destinazione
-            x = arr_10m.shape[1] / src_arr.shape[1]  # Upsampling
+            x = height_10m / src_arr.shape[1]  # Upsampling
             newaff = Affine(aff.a / x, aff.b, aff.c, aff.d, aff.e / x, aff.f)
             reproject(
                 # source parameters
@@ -66,7 +56,7 @@ def resampling():
                 resampling=Resampling.nearest)
             resampled_file_name = resampled_images_specprod_dir + '/' + 'resampled_image_' \
                                   + str(band_name) + '_10m.tif'
-            print resampled_file_name
+            print 'Resampled file: ', resampled_file_name
             resampled_image = rasterio.open(resampled_file_name, 'w',
                                             height=resampled_arr.shape[0], width=resampled_arr.shape[1],
                                             count=1, dtype=resampled_arr.dtype, driver='GTiff',
@@ -74,4 +64,3 @@ def resampling():
             resampled_image.write(resampled_arr, 1)
             resampled_image.close()
             dataset.close()
-    dataset_10m.close()

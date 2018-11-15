@@ -2,6 +2,10 @@ import rasterio
 from rasterio.warp import reproject
 import os
 import numpy as np
+import zipfile
+
+extract_band_list = ['B01_60m', 'B02_10m', 'B03_10m', 'B04_10m', 'B05_20m', 'B06_20m', 'B07_20m', 'B08_10m', 'B8A_20m',
+                     'B09_60m', 'B11_20m', 'B12_20m']
 
 
 def convertJP2toTIF(source_file, dest_path):
@@ -26,3 +30,14 @@ def convertJP2toTIF(source_file, dest_path):
     tiff_image.write(jp2_arr)
     tiff_image.close()
     jp2_dataset.close()
+
+
+def extract_zip(jp2_images_dir, zip_path_list):
+    for zip_file in zip_path_list:
+        zip_ref = zipfile.ZipFile(zip_file, 'r')
+        for zip_item in zip_ref.namelist():
+            for index in extract_band_list:
+                temp = index + '.jp2'
+                if temp in zip_item:
+                    zip_ref.extract(zip_item, jp2_images_dir)
+        zip_ref.close()
