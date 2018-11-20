@@ -12,6 +12,7 @@ def mask_image(mosaiced_image_dir, masked_image_dir, geojson_path):
     for mosaiced_image in os.listdir(mosaiced_image_dir):
         with rasterio.open(mosaiced_image_dir + mosaiced_image, 'r') as src:
             out_image, out_transform = mask(src, polygon, crop=True)
+            desc = src.descriptions
         print 'Masked ok for file: ', mosaiced_image
         out_meta = src.meta.copy()
         out_meta.update({"driver": "GTiff",
@@ -21,3 +22,4 @@ def mask_image(mosaiced_image_dir, masked_image_dir, geojson_path):
         with rasterio.open(masked_image_dir + 'masked_' + mosaiced_image[-8:-4] + '.tif', "w", **out_meta) \
                 as dest:
             dest.write(out_image)
+            dest.descriptions = desc

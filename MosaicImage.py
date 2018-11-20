@@ -14,15 +14,16 @@ def mosaic_images(resampled_images_dir, mosaiced_image_dir):
                     merging_image_list.append(rasterio.open(resampled_images_dir + spec_resampled_dir + '/' + filenames, 'r'))
                     continue
         merged_array, output_transform = merge(merging_image_list)
+        merging_image_list[1].close()
         example_dataset_meta = merging_image_list[0].meta.copy()
+        merging_image_list[0].close()
         example_dataset_meta.update({"driver": "GTiff",
                                      "height": merged_array.shape[1],
                                      "width": merged_array.shape[2],
                                      "transform": output_transform,
                                      })
-        print "Mosaiced image for band: ", band
         mosaiced_image = rasterio.open(mosaiced_image_dir + 'mosaic_image_' + band + '.tif', "w", **example_dataset_meta)
         mosaiced_image.write(merged_array)
-        merging_image_list[0].close()
-        merging_image_list[1].close()
+        mosaiced_image.descriptions = (band,)
         mosaiced_image.close()
+        print "Mosaiced image for band: ", band

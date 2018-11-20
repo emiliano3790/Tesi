@@ -14,13 +14,14 @@ def stack_bands(masked_images_dir, stacked_bands_dir):
     stack_file = rasterio.open(stack_file_name, 'w+', **stack_meta)
     i = 1
     for tif_file in tif_file_path_list:
-        src_tif = rasterio.open(tif_file)
-        stack_file.write_band(i, src_tif.read(1))
-        src_tif.close()
+        with rasterio.open(tif_file) as src_tif:
+            stack_file.write_band(i, src_tif.read(1))
+            stack_file.update_tags(band=src_tif.descriptions[0])
+            stack_file.set_band_description(i, src_tif.descriptions[0])
         i += 1
-    dst_array = stack_file.read(1)
-    print dst_array.shape
     stack_file.close()
+    print 'Stack operation ok!!!'
+
 
 
 

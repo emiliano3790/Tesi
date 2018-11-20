@@ -38,7 +38,7 @@ def resampling(jp2_images_dir, resampled_images_dir, zip_path_list):
                     if band_name in jp2_image:
                         break
             dataset = rasterio.open(jp2_image, driver='JP2OpenJPEG')  # Immagine di cui devo fare il resampling
-            src_arr = dataset.read()  # Array di cui devo fare il resampling
+            src_arr = dataset.read(1)  # Array di cui devo fare il resampling
             aff = dataset.transform
             resampled_arr = np.empty((height_10m, width_10m),
                                      dtype=src_arr.dtype)  # Array di destinazione
@@ -56,7 +56,6 @@ def resampling(jp2_images_dir, resampled_images_dir, zip_path_list):
                 resampling=Resampling.nearest)
             resampled_file_name = resampled_images_specprod_dir + '/' + 'resampled_image_' \
                                   + str(band_name) + '_10m.tif'
-            print 'Resampled file: ', resampled_file_name
             resampled_image = rasterio.open(resampled_file_name, 'w',
                                             height=resampled_arr.shape[0], width=resampled_arr.shape[1],
                                             count=1, dtype=resampled_arr.dtype, driver='GTiff',
@@ -64,3 +63,4 @@ def resampling(jp2_images_dir, resampled_images_dir, zip_path_list):
             resampled_image.write(resampled_arr, 1)
             resampled_image.close()
             dataset.close()
+            print 'Resampled file: ', resampled_file_name
