@@ -42,3 +42,16 @@ def extract_zip(jp2_images_dir, zip_path_list):
                 if temp in zip_item:
                     zip_ref.extract(zip_item, jp2_images_dir)
         zip_ref.close()
+
+def get10mFeatures(jp2_files_list):
+    for jp2_image in jp2_files_list:
+        if '10m' in jp2_image:
+            dataset_10m = rasterio.open(jp2_image)
+            arr_10m = dataset_10m.read()
+            height_10m = arr_10m.shape[1]
+            width_10m = arr_10m.shape[2]
+            dataset_10m.close()
+            break
+        else:
+            continue
+    return height_10m, width_10m

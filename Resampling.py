@@ -11,9 +11,6 @@ resizing_band_list = ['B01', 'B09', 'B11', 'B8A', 'B05', 'B06', 'B07', 'B12']
 def resampling(jp2_images_dir, resampled_images_dir, zip_path_list):
     tl.extract_zip(jp2_images_dir, zip_path_list)
     band_name = ''
-    height_10m = 0
-    width_10m = 0
-    bool_10m_param = False
     for jp2_directory in os.listdir(jp2_images_dir):
         resampled_images_specprod_dir = resampled_images_dir + jp2_directory
         os.mkdir(resampled_images_specprod_dir)
@@ -21,15 +18,9 @@ def resampling(jp2_images_dir, resampled_images_dir, zip_path_list):
         for root, dirnames, filenames in os.walk(jp2_images_dir + jp2_directory):
             for filename in filenames:
                 jp2_files_list.append(os.path.join(root, filename))
+        height_10m, width_10m = tl.get10mFeatures(jp2_files_list)
         for jp2_image in jp2_files_list:
             if '10m' in jp2_image:
-                if bool_10m_param is False:
-                    dataset_10m = rasterio.open(jp2_image)
-                    arr_10m = dataset_10m.read()
-                    height_10m = arr_10m.shape[1]
-                    width_10m = arr_10m.shape[2]
-                    bool_10m_param = True
-                    dataset_10m.close()
                 tl.convertJP2toTIF(jp2_image, resampled_images_specprod_dir)
                 print 'Copied file: ', jp2_image
                 continue
